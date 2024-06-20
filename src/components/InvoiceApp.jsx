@@ -1,56 +1,56 @@
 import React from 'react'
 import { getInvoice } from '../services/getInvoice'
+import { InvoiceView } from './InvoiceView';
+import { Clientview } from './Clientview';
+import { CompanyView } from './CompanyView';
 
 export const InvoiceApp = () => {
 
     const { id, name, client, company, items } = getInvoice();
-    const { name: nameClient, lastName, address } = client
-    const { country, city, street, number } = address
+
     return (
         <>
 
-            <h1>Factura</h1>
-            <ul>
-                <li>ID: {id}</li>
-                <li>Name: {name}</li>
-            </ul>
+            <div className='container'>
+                <div className='card my-3'>
+                    <div className='card-header'>Factura</div>
+                    <div className='card-body'>
+                        <InvoiceView id={id} name={name} />
+                        <div className='row my-3'>
+                            <div className='col'>
+                                <Clientview client={client} />
+                            </div>
+                            <div className='col'>
+                                <CompanyView company={company} />
+                            </div>
+                        </div>
 
-            <h3>Datos del cliente</h3>
-            <ul>
-                <li>{nameClient} {lastName}</li>
-                <li>{country}</li>
-                <li>{city}</li>
-                <li>{number}</li>
-            </ul>
 
-            <h3>Datos de la empresa</h3>
-            <ul>
-                <li>{company.name}</li>
-                <li>{company.fiscalNumber}</li>
-            </ul>
+                        <h4>Productos de la factura</h4>
+                        <table className='table table-striped table-hover'>
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Precio</th>
+                                    <th>Cantidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {items.map(({ id, product, price, quantity }) =>
+                                (
+                                    <tr key={id}>
+                                        <td>{product}</td>
+                                        <td>{price}</td>
+                                        <td>{quantity}</td>
+                                    </tr>
+                                )
+                                )}
 
-            <h4>Productos de la factura</h4>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Producto</th>
-                        <th>Precio</th>
-                        <th>Cantidad</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {items.map(({ product, price, quantity }) =>
-                    (
-                        <tr>
-                            <td>{product}</td>
-                            <td>{price}</td>
-                            <td>{quantity}</td>
-                        </tr>
-                    )
-                    )}
-
-                </tbody>
-            </table>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
         </>
     )
