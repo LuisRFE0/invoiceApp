@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Clientview } from "./components/Clientview";
 import { CompanyView } from "./components/CompanyView";
 import { InvoiceView } from "./components/InvoiceView";
@@ -6,18 +6,76 @@ import { ListItemsView } from "./components/ListItemsView";
 import { TotalView } from "./components/TotalView";
 import { getInvoice } from "./services/getInvoice";
 
+const invoiceInitial = {
+    id: 0,
+    name: '',
+    client: {
+        name: '',
+        lastName: '',
+        address: {
+            country: '',
+            city: '',
+            street: '',
+            number: 0
+        }
+    },
+    company: {
+        name: '',
+        fiscalNumber: 0,
+    },
+    items: []
+}
 
 export const InvoiceApp = () => {
 
-    const { total, id, name, client, company, items: itemsInitial } = getInvoice();
-    const [productValue, setProductValue] = useState('');
-    const [priceValue, setPriceValue] = useState('');
-    const [quantityValue, setQuantityValue] = useState('');
+    const [invoice, setInvoice] = useState(invoiceInitial);
 
-    const [items, setItems] = useState(itemsInitial);
+    const [items, setItems] = useState([]);
+
+    useEffect(() => {
+        const data = getInvoice();
+        setInvoice(data);
+        setItems(data.items)
+    }, [])
+
+    const { total, id, name, client, company, items: itemsInitial } = invoice;
+    const [invoiceItemsState, setInvoiceItemsState] = useState({
+        product: '',
+        price: '',
+        quantity: '',
+    });
+
+    const { product, price, quantity } = invoiceItemsState;
+
+
 
     const [counter, setCounter] = useState(4);
 
+
+    const onInputChange = ({ target: { name, value } }) => {
+
+
+        setInvoiceItemsState({
+            ...invoiceItemsState,
+            [name]: value
+        });
+    }
+
+
+
+    const onInvoiceSubmit = (event) => {
+        event.preventDefault();
+        setItems([...items, { id: counter, product, price, quantity }])
+        setInvoiceItemsState({
+            product: '',
+            price: '',
+            quantity: '',
+        });
+
+        setCounter(counter + 1);
+    }
+
+    // *****************************************************************HTML
 
     return (
         <>
@@ -37,31 +95,13 @@ export const InvoiceApp = () => {
                         </div>
                         <ListItemsView items={items} />
                         <TotalView total={total} />
-                        <form className="w-50" onSubmit={event => {
-                            event.preventDefault();
-                            setItems([...items, { id: counter, product: productValue, price: priceValue, quantity: quantityValue }])
-                            setPriceValue('');
-                            setProductValue('');
-                            setQuantityValue('');
-                            setCounter(counter + 1);
-                        }}>
-                            <input type="text" name="product" value={productValue} placeholder="Producto" className="form-control m-3"
-                                onChange={event => {
-                                    console.log(event.target.value);
-                                    setProductValue(event.target.value);
-                                }} />
-                            <input type="text" name="price" value={priceValue} placeholder="Precio" className="form-control m-3"
-                                onChange={event => {
-                                    console.log(event.target.value);
-                                    setPriceValue(event.target.value);
-
-                                }} />
-                            <input type="text" name="quantity" value={quantityValue} placeholder="Cantidad" className="form-control m-3"
-                                onChange={event => {
-                                    console.log(event.target.value);
-                                    setQuantityValue(event.target.value);
-
-                                }} />
+                        <form className="w-50" onSubmit={onInvoiceSubmit}>
+                            <input type="text" name="product" value={product} placeholder="Producto" className="form-control m-3"
+                                onChange={onInputChange} />
+                            <input type="text" name="price" value={price} placeholder="Precio" className="form-control m-3"
+                                onChange={onInputChange} />
+                            <input type="text" name="quantity" value={quantity} placeholder="Cantidad" className="form-control m-3"
+                                onChange={onInputChange} />
 
                             <button type="submit" className="btn btn-primary m-3">Nuevo item</button>
 
