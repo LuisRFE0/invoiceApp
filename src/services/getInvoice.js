@@ -7,9 +7,17 @@ export const getInvoice = () => {
     //     total = total + item.price * item.quantity
     // });
 
-    const total = invoice.items.map(item => item.price * item.quantity).reduce((accumalator, currentValue) => accumalator + currentValue, 0)
+    const total = recalculateTotal(invoice.items);
 
 
 
     return { ...invoice, total };
+}
+
+export const recalculateTotal = (items = []) => {
+
+    return items
+        .map(item => item.price * item.quantity)
+        .reduce((accumalator, currentValue) => accumalator + currentValue, 0)
+
 }

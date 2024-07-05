@@ -4,7 +4,7 @@ import { CompanyView } from "./components/CompanyView";
 import { InvoiceView } from "./components/InvoiceView";
 import { ListItemsView } from "./components/ListItemsView";
 import { TotalView } from "./components/TotalView";
-import { getInvoice } from "./services/getInvoice";
+import { getInvoice, recalculateTotal } from "./services/getInvoice";
 
 const invoiceInitial = {
     id: 0,
@@ -27,10 +27,21 @@ const invoiceInitial = {
 }
 
 export const InvoiceApp = () => {
-
+    const [total, setTotal] = useState(0);
     const [invoice, setInvoice] = useState(invoiceInitial);
-
     const [items, setItems] = useState([]);
+    const [counter, setCounter] = useState(4);
+    const [invoiceItemsState, setInvoiceItemsState] = useState({
+        product: '',
+        price: '',
+        quantity: '',
+    });
+
+    const { id, name, client, company } = invoice;
+    const { product, price, quantity } = invoiceItemsState;
+
+
+
 
     useEffect(() => {
         const data = getInvoice();
@@ -38,23 +49,16 @@ export const InvoiceApp = () => {
         setItems(data.items)
     }, [])
 
-    const { total, id, name, client, company, items: itemsInitial } = invoice;
-    const [invoiceItemsState, setInvoiceItemsState] = useState({
-        product: '',
-        price: '',
-        quantity: '',
-    });
+    useEffect(() => {
 
-    const { product, price, quantity } = invoiceItemsState;
+        setTotal(recalculateTotal(items));
 
 
+    }, [items])
 
-    const [counter, setCounter] = useState(4);
 
 
     const onInputChange = ({ target: { name, value } }) => {
-
-
         setInvoiceItemsState({
             ...invoiceItemsState,
             [name]: value
@@ -71,7 +75,6 @@ export const InvoiceApp = () => {
             price: '',
             quantity: '',
         });
-
         setCounter(counter + 1);
     }
 
